@@ -1,0 +1,33 @@
+@import "~antd/dist/antd.css";
+
+.site-layout-content {
+  min-height: 380px;
+  padding: 32px;
+  background: #f3fef7;
+}
+.logo {
+  float: left;
+  width: 120px;
+  height: 60px;
+}
+.ant-row-rtl #components-layout-demo-top .logo {
+  float: right;
+  margin: 16px 0 16px 24px;
+}
+
+.header {
+  background-image: linear-gradient(90deg, #4568dc 0%, #b06ab3 50%);
+  padding: 0 32px;
+}
+
+.ant-table-body {
+  color: #142047;
+  font-size: 18px;
+  overflow: auto;
+  overflow: -moz-scrollbars-none;
+  -ms-overflow-style: none;
+}
+
+.ant-table-thead > tr > th {
+  font-size: 20px;
+}
