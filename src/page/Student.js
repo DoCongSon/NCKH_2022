@@ -335,13 +335,13 @@ function Student() {
             >
               Thêm sinh viên
             </Button>
-            {/* <Button
+            <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={testDiemDanh}
             >
               test điểm danh sinh viên
-            </Button> */}
+            </Button>
           </div>
           <Table
             tableLayout="fixed"
