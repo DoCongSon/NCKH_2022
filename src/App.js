@@ -1,14 +1,13 @@
 import "./App.css";
 import Student from "./page/Student";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { Layout, Menu, Image } from "antd";
+// import { BrowserRouter as Router} from "react-router-dom";
+import { Layout, Image } from "antd";
 import { Footer, Header } from "antd/lib/layout/layout";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import Text from "antd/lib/typography/Text";
 
 function App() {
   return (
-    <Router>
       <Layout className="layout">
         <Header className="header">
           <div className="logo">
@@ -27,7 +26,6 @@ function App() {
           <Text>Học viện Kĩ thuật mật mã ©2022</Text>
         </Footer>
       </Layout>
-    </Router>
   );
 }
 

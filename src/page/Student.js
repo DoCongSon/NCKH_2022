@@ -15,11 +15,11 @@ import {
   PlusOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import StudentForm from "../component/StudentForm";
 import firebaseDb, { databaseKeys, getSnapshotList } from "../util/firebaseDb";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -207,7 +207,6 @@ function Student() {
   // );
 
   const testDiemDanh = () => {
-    const d = new Date();
     const newHistoryRef = firebaseDb.ref(
       databaseKeys.HISTORY + "/" + students[1].key + "/1"
     );
