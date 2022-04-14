@@ -1,12 +1,10 @@
 import {
   Layout,
-  Breadcrumb,
   Table,
   Button,
   Space,
   Modal,
   notification,
-  Tag,
   Typography,
   Tooltip,
 } from "antd";
@@ -29,9 +27,6 @@ const { confirm } = Modal;
 
 function Student() {
   const [students, setStudents] = useState([]);
-  // const [searchText, setSearchText] = useState("");
-  // const [searchedColumn, setSearchedColumn] = useState("");
-  // const [searchInput, setSearchInput] = useState();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [student, setStudent] = useState();
@@ -52,10 +47,8 @@ function Student() {
 
   const handleCreate = async (params) => {
     setLoading(true);
-    const newStudentRef = firebaseDb.ref(databaseKeys.STUDENTS).push();
-    delete params.key;
     await new Promise((resolve) => {
-      setTimeout(() => resolve(), 2000);
+      setTimeout(() => resolve(), 1000);
       params.fingerId =
         Math.max(
           ...(students?.length > 0
@@ -63,7 +56,12 @@ function Student() {
             : [0])
         ) + 1;
     });
+    const newStudentRef = firebaseDb.ref(
+      `${databaseKeys.STUDENTS}/${params.fingerId}`
+    );
     newStudentRef.set(params);
+    const dangKiRef = firebaseDb.ref(databaseKeys.DANGKI);
+    dangKiRef.set(1);
     handleClose();
     notification.success({
       message: "Thêm sinh viên thành công",
@@ -73,11 +71,12 @@ function Student() {
 
   const handleDelete = (record) => {
     confirm({
-      title: `Bạn muốn xoá học sinh?`,
+      title: `Bạn muốn xoá sinh viên?`,
       icon: <ExclamationCircleOutlined />,
       content: `${record.name} - ${record.code}`,
       onOk() {
         firebaseDb.ref(databaseKeys.STUDENTS + "/" + record.key).remove();
+        firebaseDb.ref(databaseKeys.HISTORY + "/" + record.key).remove();
         notification.error({
           message: "Xoá sinh viên thành công",
           description: `${record.name} - ${record.code} - Vân tay ${record.fingerId}`,
@@ -95,96 +94,6 @@ function Student() {
       description: `${params.name} - ${params.code} - Vân tay ${params.fingerId}`,
     });
   };
-
-  // const handleSearch = (selectedKeys, confirm, dataIndex) => {
-  //   confirm();
-  //   setSearchText(selectedKeys[0]);
-  //   setSearchedColumn(dataIndex);
-  // };
-
-  // const handleReset = (clearFilters) => {
-  //   clearFilters();
-  //   setSearchText("");
-  // };
-
-  // const getColumnSearchProps = (dataIndex) => ({
-  //   filterDropdown: ({
-  //     setSelectedKeys,
-  //     selectedKeys,
-  //     confirm,
-  //     clearFilters,
-  //   }) => (
-  //     <div style={{ padding: 8 }}>
-  //       <Input
-  //         ref={(node) => {
-  //           setSearchInput(node);
-  //         }}
-  //         placeholder={`Search ${dataIndex}`}
-  //         value={selectedKeys[0]}
-  //         onChange={(e) =>
-  //           setSelectedKeys(e.target.value ? [e.target.value] : [])
-  //         }
-  //         onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-  //         style={{ width: 188, marginBottom: 8, display: "block" }}
-  //       />
-  //       <Space>
-  //         <Button
-  //           type="primary"
-  //           onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-  //           icon={<SearchOutlined />}
-  //           size="small"
-  //           style={{ width: 90 }}
-  //         >
-  //           Search
-  //         </Button>
-  //         <Button
-  //           onClick={() => handleReset(clearFilters)}
-  //           size="small"
-  //           style={{ width: 90 }}
-  //         >
-  //           Reset
-  //         </Button>
-  //         <Button
-  //           type="link"
-  //           size="small"
-  //           onClick={() => {
-  //             confirm({ closeDropdown: false });
-  //             setSearchText(selectedKeys[0]);
-  //             setSearchedColumn(dataIndex);
-  //           }}
-  //         >
-  //           Filter
-  //         </Button>
-  //       </Space>
-  //     </div>
-  //   ),
-  //   filterIcon: (filtered) => (
-  //     <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-  //   ),
-  //   onFilter: (value, record) =>
-  //     record[dataIndex]
-  //       ? record[dataIndex]
-  //           .toString()
-  //           .toLowerCase()
-  //           .includes(value.toLowerCase())
-  //       : "",
-  //   onFilterDropdownVisibleChange: (visible) => {
-  //     if (visible) {
-  //       setTimeout(() => searchInput.select(), 100);
-  //     }
-  //   },
-  //   render: (text) =>
-  //     searchedColumn === dataIndex ? (
-  //       <Highlighter
-  //         highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-  //         searchWords={[searchText]}
-  //         autoEscape
-  //         textToHighlight={text ? text.toString() : ""}
-  //       />
-  //     ) : (
-  //       text
-  //     ),
-  // });
 
   const columns = [
     {
@@ -253,12 +162,15 @@ function Student() {
                   .ref(databaseKeys.HISTORY + "/" + record.key)
                   .on("value", (snapshot) => {
                     const list = getSnapshotList(snapshot).reverse();
+                    console.log(list);
                     setHistory({
                       student: record,
-                      list: list.map(({ datetime, key }) => ({
+                      list: list.map(({ date, time, key }) => ({
                         key,
-                        date: format(new Date(datetime), "dd/MM/yyyy"),
-                        time: format(new Date(datetime), "HH:mm"),
+                        date,
+                        time,
+                        // date: format(new Date(datetime), "dd/MM/yyyy"),
+                        // time: format(new Date(datetime), "HH:mm"),
                       })),
                     });
                     setHistoryVisible(true);
@@ -275,39 +187,42 @@ function Student() {
     },
   ];
 
-  const addHistory = useCallback(
-    (fingerId) => {
-      const selected = students.find(
-        (s) => Number(s.fingerId) === Number(fingerId)
-      );
-      // selected là sv có id vân tay là fingerId
-      const newHistoryRef = firebaseDb
-        .ref(databaseKeys.HISTORY + "/" + selected.key)
-        .push();
-      newHistoryRef.set({
-        datetime: new Date().toISOString(),
-      });
-      // tải dữ liệu diểm danh lên firebase
-      notification.success({
-        message: "Có sinh viên vừa điểm danh",
-        description: `${selected.name} - ${selected.code} - Vân tay ${selected.fingerId}`,
-      });
-    },
-    [students]
-  );
+  // const addHistory = useCallback(
+  //   (fingerId) => {
+  //     const selected = students.find(
+  //       (s) => Number(s.fingerId) === Number(fingerId)
+  //     );
+  //     const newHistoryRef = firebaseDb
+  //       .ref(databaseKeys.HISTORY + "/" + selected.key)
+  //       // .push();
+  //     newHistoryRef.set({
+  //       datetime: new Date().toISOString(),
+  //     });
+  //     notification.success({
+  //       message: "Có sinh viên vừa điểm danh",
+  //       description: `${selected.name} - ${selected.code} - Vân tay ${selected.fingerId}`,
+  //     });
+  //   },
+  //   [students]
+  // );
 
   const testDiemDanh = () => {
-    const newHistoryRef = firebaseDb
-      .ref(databaseKeys.HISTORY + "/" + students[1].key)
-      .push();
+    const d = new Date();
+    const newHistoryRef = firebaseDb.ref(
+      databaseKeys.HISTORY + "/" + students[1].key + "/1"
+    );
+    // .push();
     newHistoryRef.set({
-      datetime: new Date().toISOString(),
+      // datetime: new Date().toISOString(),
+      date: "12/4/2022",
+      time: "21:12",
     });
+    console.log(students[1].key);
   };
 
-  useEffect(() => {
-    window.addHistory = addHistory;
-  }, [addHistory]);
+  // useEffect(() => {
+  //   window.addHistory = addHistory;
+  // }, [addHistory]);
 
   const historyColumns = [
     {

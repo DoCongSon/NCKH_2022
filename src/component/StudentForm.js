@@ -31,7 +31,7 @@ const StudentForm = ({ student, visible, onSubmit, onCancel, loading }) => {
             await onSubmit(values);
           })
           .catch((info) => {
-            console.log('Validate Failed:', info);
+            console.log("Validate Failed:", info);
           });
       }}
     >
@@ -40,20 +40,25 @@ const StudentForm = ({ student, visible, onSubmit, onCancel, loading }) => {
           form={form}
           layout="vertical"
           name="form_in_modal"
-          initialValues={{
-          }}
+          initialValues={{}}
         >
-          <Form.Item
+          {/* <Form.Item
             name="key"
             label="key"
             hidden
           >
             <Input />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item
             name="fingerId"
-            label="fingerId"
+            label="ID vân tay"
             hidden
+            // rules={[
+            //   {
+            //     required: true,
+            //     message: "Vui lòng nhập mã sinh viên!",
+            //   },
+            // ]}
           >
             <Input />
           </Form.Item>
@@ -63,7 +68,7 @@ const StudentForm = ({ student, visible, onSubmit, onCancel, loading }) => {
             rules={[
               {
                 required: true,
-                message: 'Vui lòng nhập mã sinh viên!',
+                message: "Vui lòng nhập mã sinh viên!",
               },
             ]}
           >
@@ -75,7 +80,7 @@ const StudentForm = ({ student, visible, onSubmit, onCancel, loading }) => {
             rules={[
               {
                 required: true,
-                message: 'Vui lòng nhập họ tên sinh viên!',
+                message: "Vui lòng nhập họ tên sinh viên!",
               },
             ]}
           >
@@ -87,7 +92,7 @@ const StudentForm = ({ student, visible, onSubmit, onCancel, loading }) => {
             rules={[
               {
                 required: true,
-                message: 'Vui lòng nhập lớp!',
+                message: "Vui lòng nhập lớp!",
               },
             ]}
           >
@@ -99,7 +104,7 @@ const StudentForm = ({ student, visible, onSubmit, onCancel, loading }) => {
             rules={[
               {
                 required: true,
-                message: 'Vui lòng nhập SĐT!',
+                message: "Vui lòng nhập SĐT!",
               },
             ]}
           >

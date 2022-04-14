@@ -19,6 +19,7 @@ const firebaseDb = firebaseApp.database();
 export const databaseKeys = {
   STUDENTS: "students",
   HISTORY: "history",
+  DANGKI: "dangki",
 };
 
 export default firebaseDb;
