@@ -23,7 +23,7 @@ function App() {
         <Footer style={{ textAlign: "center" }}>
           <Text>Khoa Điện tử - Viễn thông</Text>
           <br />
-          <Text>Học viện Kĩ thuật mật mã ©2022</Text>
+          <Text>Học viện Kĩ thuật mật mã © 2022</Text>
         </Footer>
       </Layout>
   );

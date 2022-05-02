@@ -20,6 +20,8 @@ export const databaseKeys = {
   STUDENTS: "students",
   HISTORY: "history",
   DANGKI: "dangki",
+  SISO: "siso",
+  DIEMDANH: "diemdanh",
 };
 
 export default firebaseDb;

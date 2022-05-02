@@ -12,14 +12,14 @@ import {
   CloseOutlined,
   EditOutlined,
   FileSearchOutlined,
-  PlusOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import StudentForm from "../component/StudentForm";
 import firebaseDb, { databaseKeys, getSnapshotList } from "../util/firebaseDb";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-// import { format } from "date-fns";
+import ExportFile from "../component/ExportFile";
+import days from "../component/days";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -32,6 +32,13 @@ function Student() {
   const [student, setStudent] = useState();
   const [history, setHistory] = useState({});
   const [historyVisible, setHistoryVisible] = useState(false);
+  const diemdanh = useRef(false);
+  const btnDiemdanh = useRef();
+
+  const updateSiSo = (siSo) => {
+    const siSoRef = firebaseDb.ref(databaseKeys.SISO);
+    siSoRef.set(siSo);
+  } 
 
   useEffect(() => {
     firebaseDb.ref(databaseKeys.STUDENTS).on("value", (snapshot) => {
@@ -44,6 +51,8 @@ function Student() {
     setStudent(undefined);
     setLoading(false);
   };
+
+  console.log(students.length);
 
   const handleCreate = async (params) => {
     setLoading(true);
@@ -62,6 +71,20 @@ function Student() {
     newStudentRef.set(params);
     const dangKiRef = firebaseDb.ref(databaseKeys.DANGKI);
     dangKiRef.set(1);
+    updateSiSo(params.fingerId)
+
+    for (let i = 0; i < days.length; i++) {
+      const newHistoryRef = firebaseDb.ref(
+        databaseKeys.HISTORY + "/" + params.fingerId + "/" + (i + 1)
+      );
+      newHistoryRef.set({
+        date: days[i],
+        time: "00:00",
+        diemdanh: false,
+      });
+      console.log(params.key);
+    }
+
     handleClose();
     notification.success({
       message: "Thêm sinh viên thành công",
@@ -95,36 +118,42 @@ function Student() {
     });
   };
 
+  const handleDiemDanh = () => {
+    const diemdanhRef = firebaseDb.ref(databaseKeys.DIEMDANH);
+    if (diemdanh.current) {
+      diemdanhRef.set("0");
+    } else diemdanhRef.set("1"); 
+    diemdanh.current = !diemdanh.current
+    if (diemdanh.current) {
+     btnDiemdanh.current.querySelector('span').textContent = "Kết thúc điểm danh"
+    } else btnDiemdanh.current.querySelector('span').textContent = "Bắt đầu điểm danh"
+  }
+
   const columns = [
     {
       title: "Mã sinh viên",
       dataIndex: "code",
       key: "code",
-      // ...getColumnSearchProps("code"),
     },
     {
       title: "Họ và tên",
       dataIndex: "name",
       key: "name",
-      // ...getColumnSearchProps("name"),
     },
     {
       title: "Lớp",
       dataIndex: "classname",
       key: "classname",
-      // ...getColumnSearchProps("classname"),
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
       key: "phone",
-      // ...getColumnSearchProps("phone"),
     },
     {
       title: "Mã vân tay",
       dataIndex: "fingerId",
       key: "fingerId",
-      // ...getColumnSearchProps("fingerId"),
     },
     {
       title: "Hành động",
@@ -165,12 +194,12 @@ function Student() {
                     console.log(list);
                     setHistory({
                       student: record,
-                      list: list.map(({ date, time, key }) => ({
+                      list: list.map(({ date, time, key, diemdanh }) => ({
                         key,
                         date,
                         time,
-                        // date: format(new Date(datetime), "dd/MM/yyyy"),
-                        // time: format(new Date(datetime), "HH:mm"),
+                        diemdanh:
+                          diemdanh === true || diemdanh === "true" ? "có" : "vắng",
                       })),
                     });
                     setHistoryVisible(true);
@@ -187,42 +216,6 @@ function Student() {
     },
   ];
 
-  // const addHistory = useCallback(
-  //   (fingerId) => {
-  //     const selected = students.find(
-  //       (s) => Number(s.fingerId) === Number(fingerId)
-  //     );
-  //     const newHistoryRef = firebaseDb
-  //       .ref(databaseKeys.HISTORY + "/" + selected.key)
-  //       // .push();
-  //     newHistoryRef.set({
-  //       datetime: new Date().toISOString(),
-  //     });
-  //     notification.success({
-  //       message: "Có sinh viên vừa điểm danh",
-  //       description: `${selected.name} - ${selected.code} - Vân tay ${selected.fingerId}`,
-  //     });
-  //   },
-  //   [students]
-  // );
-
-  const testDiemDanh = () => {
-    const newHistoryRef = firebaseDb.ref(
-      databaseKeys.HISTORY + "/" + students[1].key + "/1"
-    );
-    // .push();
-    newHistoryRef.set({
-      // datetime: new Date().toISOString(),
-      date: "12/4/2022",
-      time: "21:12",
-    });
-    console.log(students[1].key);
-  };
-
-  // useEffect(() => {
-  //   window.addHistory = addHistory;
-  // }, [addHistory]);
-
   const historyColumns = [
     {
       title: "Ngày",
@@ -234,12 +227,22 @@ function Student() {
       dataIndex: "time",
       key: "time",
     },
+    {
+      title: "Điểm danh",
+      dataIndex: "diemdanh",
+      key: "diemdanh",
+    },
   ];
   return (
     <>
       <Content>
         <div className="site-layout-content">
-          <div style={{ textAlign: "right", marginBottom: "0.5rem" }}>
+          <div
+            style={{
+              textAlign: "right",
+              marginBottom: "0.5rem",
+            }}
+          >
             <Button
               type="primary"
               shape="round"
@@ -249,12 +252,16 @@ function Student() {
             >
               Thêm sinh viên
             </Button>
+
             <Button
+              ref={btnDiemdanh}
               type="primary"
-              icon={<PlusOutlined />}
-              onClick={testDiemDanh}
+              shape="round"
+              size="large"
+              style={{ marginLeft: "1rem" }}
+              onClick={() => handleDiemDanh(diemdanh.current)}
             >
-              test điểm danh sinh viên
+              Bắt đầU điểm danh
             </Button>
           </div>
           <Table
@@ -265,6 +272,13 @@ function Student() {
             dataSource={students}
             pagination="false"
           />
+          <div style={{ textAlign: "right", marginBottom: "0.5rem" }}>
+            <ExportFile
+              data={students}
+              history={history}
+              fileName="sinhvien.csv"
+            />
+          </div>
         </div>
       </Content>
       <StudentForm
