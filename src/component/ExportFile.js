@@ -1,13 +1,14 @@
-import { Button } from "antd";
-import React from "react";
-import { CSVLink } from "react-csv";
-import { useState, useEffect } from "react";
-import firebaseDb, { databaseKeys, getSnapshotList } from "../util/firebaseDb";
-import days from "./days";
+import { Button } from 'antd';
+import React from 'react';
+import { CSVLink } from 'react-csv';
+import { useState, useEffect } from 'react';
+import firebaseDb, { databaseKeys, getSnapshotList } from '../util/firebaseDb';
+import days from './days';
 
-function ExportFile({ data, fileName }) {
+function ExportFile({ data, fileName, dataHistory }) {
   const [history, setHistory] = useState([]);
-  const [dataTest, setDataTest] = useState([]);
+  const [dataExcel, setDataExcel] = useState([]);
+  const [banExam, setBanExam] = useState([]);
 
   const getHistory = (student) => {
     if (!student.fingerId) {
@@ -15,8 +16,8 @@ function ExportFile({ data, fileName }) {
     }
     const resolve = {};
     firebaseDb
-      .ref(databaseKeys.HISTORY + "/" + student.fingerId)
-      .on("value", (snapshot) => {
+      .ref(databaseKeys.HISTORY + '/' + student.fingerId)
+      .on('value', (snapshot) => {
         const list = getSnapshotList(snapshot).reverse();
         resolve.student = student;
         resolve.list = list.map(({ date, time, key, diemdanh }) => ({
@@ -36,15 +37,25 @@ function ExportFile({ data, fileName }) {
       listHistory.push(getHistory(student));
     });
     setHistory(listHistory);
-  }, [data]);
+  }, [data, dataHistory]);
 
   useEffect(() => {
     if (history.length > 0) {
       setTimeout(() => {
-        const dataTest1 = [["name", "classname", "code", "phone", ...days]];
+        const dataExcel1 = [
+          ['Họ và tên', 'Lớp', 'Mã sinh viên', 'Số điện thoại', ...days],
+        ];
         history.forEach((historyElement) => {
           const ktdiemdanh =
-            historyElement.list.map((element) => element.diemdanh) ?? [];
+            historyElement.list.map((element) => {
+              let resolve = '';
+              if (element.diemdanh === 1) {
+                resolve = 'Có';
+              } else if (element.diemdanh === 0) {
+                resolve = 'Vắng';
+              }
+              return resolve;
+            }) ?? [];
           const data = [
             historyElement.student.name,
             historyElement.student.classname,
@@ -52,20 +63,54 @@ function ExportFile({ data, fileName }) {
             historyElement.student.phone.toString(),
             ...ktdiemdanh,
           ];
-          dataTest1.push(data);
+          dataExcel1.push(data);
         });
-        console.log(dataTest1);
-        setDataTest(dataTest1);
+        setDataExcel(dataExcel1);
       }, 1000);
     }
   }, [history]);
 
-  console.log("data:");
-  console.log(dataTest);
+  useEffect(() => {
+    if (history.length > 0) {
+      setTimeout(() => {
+        const banExamArr = history.map((element) => {
+          let isBan = false;
+          let soNgayNghi = 0;
+          element.list.forEach((e) => {
+            if (e.diemdanh === 0) {
+              soNgayNghi++;
+            }
+          });
+          if (soNgayNghi > days.length * 0.25) {
+            isBan = true;
+          }
+          return {
+            isBan: isBan,
+            fingerId: element.student.fingerId,
+          };
+        });
+        setBanExam(banExamArr);
+      }, 1000);
+    }
+  }, [history]);
+
+  useEffect(() => {
+    banExam.forEach((e) => {
+      const banExamRef = firebaseDb.ref(
+        databaseKeys.STUDENTS + '/' + e.fingerId + '/isBan'
+      );
+      banExamRef.set(e.isBan);
+    });
+  }, [banExam]);
+
+  // console.log('data:');
+  // console.log(dataExcel);
+  // console.log(history);
+  // console.log(banExam);
 
   return (
-    <Button type="primary" shape="round" size="large">
-      <CSVLink data={dataTest} filename={fileName}>
+    <Button type='primary' shape='round' size='large'>
+      <CSVLink data={dataExcel} filename={fileName}>
         Xuất file điểm danh
       </CSVLink>
     </Button>

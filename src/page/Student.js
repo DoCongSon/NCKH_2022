@@ -7,19 +7,19 @@ import {
   notification,
   Typography,
   Tooltip,
-} from "antd";
+} from 'antd';
 import {
   CloseOutlined,
   EditOutlined,
   FileSearchOutlined,
   UserAddOutlined,
-} from "@ant-design/icons";
-import { useEffect, useState, useRef } from "react";
-import StudentForm from "../component/StudentForm";
-import firebaseDb, { databaseKeys, getSnapshotList } from "../util/firebaseDb";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import ExportFile from "../component/ExportFile";
-import days from "../component/days";
+} from '@ant-design/icons';
+import { useEffect, useState, useRef } from 'react';
+import StudentForm from '../component/StudentForm';
+import firebaseDb, { databaseKeys, getSnapshotList } from '../util/firebaseDb';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import ExportFile from '../component/ExportFile';
+import days from '../component/days';
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -38,10 +38,10 @@ function Student() {
   const updateSiSo = (siSo) => {
     const siSoRef = firebaseDb.ref(databaseKeys.SISO);
     siSoRef.set(siSo);
-  } 
+  };
 
   useEffect(() => {
-    firebaseDb.ref(databaseKeys.STUDENTS).on("value", (snapshot) => {
+    firebaseDb.ref(databaseKeys.STUDENTS).on('value', (snapshot) => {
       setStudents(getSnapshotList(snapshot));
     });
   }, []);
@@ -71,23 +71,23 @@ function Student() {
     newStudentRef.set(params);
     const dangKiRef = firebaseDb.ref(databaseKeys.DANGKI);
     dangKiRef.set(1);
-    updateSiSo(params.fingerId)
+    updateSiSo(params.fingerId);
 
     for (let i = 0; i < days.length; i++) {
       const newHistoryRef = firebaseDb.ref(
-        databaseKeys.HISTORY + "/" + params.fingerId + "/" + (i + 1)
+        databaseKeys.HISTORY + '/' + params.fingerId + '/' + (i + 1)
       );
       newHistoryRef.set({
         date: days[i],
-        time: "00:00",
-        diemdanh: false,
+        time: '00:00',
+        diemdanh: "",
       });
       console.log(params.key);
     }
 
     handleClose();
     notification.success({
-      message: "Thêm sinh viên thành công",
+      message: 'Thêm sinh viên thành công',
       description: `${params.name} - ${params.code} - Vân tay ${params.fingerId}`,
     });
   };
@@ -98,10 +98,10 @@ function Student() {
       icon: <ExclamationCircleOutlined />,
       content: `${record.name} - ${record.code}`,
       onOk() {
-        firebaseDb.ref(databaseKeys.STUDENTS + "/" + record.key).remove();
-        firebaseDb.ref(databaseKeys.HISTORY + "/" + record.key).remove();
+        firebaseDb.ref(databaseKeys.STUDENTS + '/' + record.key).remove();
+        firebaseDb.ref(databaseKeys.HISTORY + '/' + record.key).remove();
         notification.error({
-          message: "Xoá sinh viên thành công",
+          message: 'Xoá sinh viên thành công',
           description: `${record.name} - ${record.code} - Vân tay ${record.fingerId}`,
         });
       },
@@ -110,10 +110,10 @@ function Student() {
 
   const handleUpdate = (params) => {
     setLoading(true);
-    firebaseDb.ref(databaseKeys.STUDENTS + "/" + params.key).set(params);
+    firebaseDb.ref(databaseKeys.STUDENTS + '/' + params.key).set(params);
     handleClose();
     notification.success({
-      message: "Cập nhật sinh viên thành công",
+      message: 'Cập nhật sinh viên thành công',
       description: `${params.name} - ${params.code} - Vân tay ${params.fingerId}`,
     });
   };
@@ -121,95 +121,102 @@ function Student() {
   const handleDiemDanh = () => {
     const diemdanhRef = firebaseDb.ref(databaseKeys.DIEMDANH);
     if (diemdanh.current) {
-      diemdanhRef.set("0");
-    } else diemdanhRef.set("1"); 
-    diemdanh.current = !diemdanh.current
+      diemdanhRef.set('0');
+    } else diemdanhRef.set('1');
+    diemdanh.current = !diemdanh.current;
     if (diemdanh.current) {
-     btnDiemdanh.current.querySelector('span').textContent = "Kết thúc điểm danh"
-    } else btnDiemdanh.current.querySelector('span').textContent = "Bắt đầu điểm danh"
-  }
+      btnDiemdanh.current.querySelector('span').textContent =
+        'Kết thúc điểm danh';
+    } else
+      btnDiemdanh.current.querySelector('span').textContent =
+        'Bắt đầu điểm danh';
+  };
 
   const columns = [
     {
-      title: "Mã sinh viên",
-      dataIndex: "code",
-      key: "code",
+      title: 'Mã sinh viên',
+      dataIndex: 'code',
+      key: 'code',
     },
     {
-      title: "Họ và tên",
-      dataIndex: "name",
-      key: "name",
+      title: 'Họ và tên',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: "Lớp",
-      dataIndex: "classname",
-      key: "classname",
+      title: 'Lớp',
+      dataIndex: 'classname',
+      key: 'classname',
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
-      key: "phone",
+      title: 'Số điện thoại',
+      dataIndex: 'phone',
+      key: 'phone',
     },
     {
-      title: "Mã vân tay",
-      dataIndex: "fingerId",
-      key: "fingerId",
+      title: 'Mã vân tay',
+      dataIndex: 'fingerId',
+      key: 'fingerId',
     },
     {
-      title: "Hành động",
-      dataIndex: "",
-      key: "x",
+      title: 'Hành động',
+      dataIndex: '',
+      key: 'x',
       render: (_, record) => (
         <Space>
-          <Tooltip placement="bottom" title="Sửa thông tin sinh viên">
+          <Tooltip placement='bottom' title='Sửa thông tin sinh viên'>
             <Button
               onClick={() => {
                 setStudent(record);
                 setVisible(true);
               }}
-              color="primary"
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-            ></Button>
+              color='primary'
+              type='primary'
+              shape='circle'
+              icon={<EditOutlined />}></Button>
           </Tooltip>
 
-          <Tooltip placement="bottom" title="Xoá sinh viên">
+          <Tooltip placement='bottom' title='Xoá sinh viên'>
             <Button
               onClick={() => handleDelete(record)}
               danger
-              type="primary"
-              shape="circle"
-              icon={<CloseOutlined />}
-            ></Button>
+              type='primary'
+              shape='circle'
+              icon={<CloseOutlined />}></Button>
           </Tooltip>
 
-          <Tooltip placement="bottom" title="Hiện thị lịch sử điểm danh">
+          <Tooltip placement='bottom' title='Hiện thị lịch sử điểm danh'>
             <Button
               onClick={() => {
                 firebaseDb
-                  .ref(databaseKeys.HISTORY + "/" + record.key)
-                  .on("value", (snapshot) => {
+                  .ref(databaseKeys.HISTORY + '/' + record.key)
+                  .on('value', (snapshot) => {
                     const list = getSnapshotList(snapshot).reverse();
-                    console.log(list);
+                    list.sort((a, b) => a.key - b.key);
                     setHistory({
                       student: record,
-                      list: list.map(({ date, time, key, diemdanh }) => ({
-                        key,
-                        date,
-                        time,
-                        diemdanh:
-                          diemdanh === true || diemdanh === "true" ? "có" : "vắng",
-                      })),
+                      list: list.map(({ date, time, key, diemdanh }) => {
+                        let resolve = '';
+                        if (diemdanh === 1) {
+                          resolve = 'Có';
+                        } else if (diemdanh === 0) {
+                          resolve = 'Vắng';
+                        }
+                        return {
+                          key,
+                          date,
+                          time,
+                          diemdanh: resolve,
+                        };
+                      }),
                     });
                     setHistoryVisible(true);
                   });
               }}
-              color="primary"
-              type="primary"
-              shape="circle"
-              icon={<FileSearchOutlined />}
-            ></Button>
+              color='primary'
+              type='primary'
+              shape='circle'
+              icon={<FileSearchOutlined />}></Button>
           </Tooltip>
         </Space>
       ),
@@ -218,65 +225,62 @@ function Student() {
 
   const historyColumns = [
     {
-      title: "Ngày",
-      dataIndex: "date",
-      key: "date",
+      title: 'Ngày',
+      dataIndex: 'date',
+      key: 'date',
     },
     {
-      title: "Giờ",
-      dataIndex: "time",
-      key: "time",
+      title: 'Giờ',
+      dataIndex: 'time',
+      key: 'time',
     },
     {
-      title: "Điểm danh",
-      dataIndex: "diemdanh",
-      key: "diemdanh",
+      title: 'Điểm danh',
+      dataIndex: 'diemdanh',
+      key: 'diemdanh',
     },
   ];
   return (
     <>
       <Content>
-        <div className="site-layout-content">
+        <div className='site-layout-content'>
           <div
             style={{
-              textAlign: "right",
-              marginBottom: "0.5rem",
-            }}
-          >
+              textAlign: 'right',
+              marginBottom: '0.5rem',
+            }}>
             <Button
-              type="primary"
-              shape="round"
-              size="large"
+              type='primary'
+              shape='round'
+              size='large'
               icon={<UserAddOutlined />}
-              onClick={() => setVisible(true)}
-            >
+              onClick={() => setVisible(true)}>
               Thêm sinh viên
             </Button>
 
             <Button
               ref={btnDiemdanh}
-              type="primary"
-              shape="round"
-              size="large"
-              style={{ marginLeft: "1rem" }}
-              onClick={() => handleDiemDanh(diemdanh.current)}
-            >
-              Bắt đầU điểm danh
+              type='primary'
+              shape='round'
+              size='large'
+              style={{ marginLeft: '1rem' }}
+              onClick={() => handleDiemDanh(diemdanh.current)}>
+              Bắt đầu điểm danh
             </Button>
           </div>
           <Table
-            tableLayout="fixed"
+            tableLayout='fixed'
             scroll={{ y: 357 }}
-            className="table"
+            className='table'
             columns={columns}
             dataSource={students}
-            pagination="false"
+            pagination='false'
           />
-          <div style={{ textAlign: "right", marginBottom: "0.5rem" }}>
+          <div style={{ textAlign: 'right', marginBottom: '0.5rem' }}>
             <ExportFile
               data={students}
-              history={history}
-              fileName="sinhvien.csv"
+              dataHistory={history}
+              fileName='sinhvien.csv'
             />
           </div>
         </div>
@@ -290,24 +294,22 @@ function Student() {
       />
       <Modal
         visible={historyVisible}
-        title="Lịch sử điểm danh"
+        title='Lịch sử điểm danh'
         closable={false}
         footer={[
           <Button
-            key="submit"
-            type="primary"
+            key='submit'
+            type='primary'
             onClick={() => {
               firebaseDb
-                .ref(databaseKeys.HISTORY + "/" + history?.student.key)
-                .off("value");
+                .ref(databaseKeys.HISTORY + '/' + history?.student.key)
+                .off('value');
               setHistoryVisible(false);
               setHistory({});
-            }}
-          >
+            }}>
             Đóng
           </Button>,
-        ]}
-      >
+        ]}>
         <>
           <Title level={5}>
             {history?.student?.name} - {history?.student?.code}
