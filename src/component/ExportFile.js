@@ -43,7 +43,14 @@ function ExportFile({ data, fileName, dataHistory }) {
     if (history.length > 0) {
       setTimeout(() => {
         const dataExcel1 = [
-          ['Họ và tên', 'Lớp', 'Mã sinh viên', 'Số điện thoại', ...days],
+          [
+            'Họ và tên',
+            'Lớp',
+            'Mã sinh viên',
+            'Số điện thoại',
+            'Email',
+            ...days,
+          ],
         ];
         history.forEach((historyElement) => {
           const ktdiemdanh =
@@ -61,6 +68,7 @@ function ExportFile({ data, fileName, dataHistory }) {
             historyElement.student.classname,
             historyElement.student.code,
             historyElement.student.phone.toString(),
+            historyElement.student.email,
             ...ktdiemdanh,
           ];
           dataExcel1.push(data);

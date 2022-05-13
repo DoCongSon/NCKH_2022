@@ -110,6 +110,18 @@ const StudentForm = ({ student, visible, onSubmit, onCancel, loading }) => {
           >
             <Input />
           </Form.Item>
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập Email!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
         </Form>
       </Spin>
     </Modal>

@@ -80,7 +80,7 @@ function Student() {
       newHistoryRef.set({
         date: days[i],
         time: '00:00',
-        diemdanh: "",
+        diemdanh: '',
       });
       console.log(params.key);
     }
@@ -110,7 +110,7 @@ function Student() {
 
   const handleUpdate = (params) => {
     setLoading(true);
-    firebaseDb.ref(databaseKeys.STUDENTS + '/' + params.key).set(params);
+    firebaseDb.ref(databaseKeys.STUDENTS + '/' + params.fingerId).set(params);
     handleClose();
     notification.success({
       message: 'Cập nhật sinh viên thành công',
@@ -154,7 +154,12 @@ function Student() {
       key: 'phone',
     },
     {
-      title: 'Mã vân tay',
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: 'ID',
       dataIndex: 'fingerId',
       key: 'fingerId',
     },
@@ -269,7 +274,7 @@ function Student() {
             </Button>
           </div>
           <Table
-            tableLayout='fixed'
+            tableLayout='auto'
             scroll={{ y: 357 }}
             className='table'
             columns={columns}
