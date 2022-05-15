@@ -82,15 +82,15 @@ function ExportFile({ data, fileName, dataHistory }) {
     if (history.length > 0) {
       setTimeout(() => {
         const banExamArr = history.map((element) => {
-          let isBan = false;
+          let isBan = 0;
           let soNgayNghi = 0;
           element.list.forEach((e) => {
             if (e.diemdanh === 0) {
               soNgayNghi++;
             }
           });
-          if (soNgayNghi > days.length * 0.25) {
-            isBan = true;
+          if (soNgayNghi === Number.parseInt(days.length * 0.25)) {
+            isBan = 1;
           }
           return {
             isBan: isBan,
