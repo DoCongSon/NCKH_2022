@@ -71,6 +71,10 @@ function Student() {
     newStudentRef.set(params);
     const dangKiRef = firebaseDb.ref(databaseKeys.DANGKI);
     dangKiRef.set(1);
+    const canhBaoRef = firebaseDb.ref(
+      `${databaseKeys.STUDENTS}/${params.fingerId}/canhbao`
+    );
+    canhBaoRef.set(0);
     updateSiSo(params.fingerId);
 
     for (let i = 0; i < days.length; i++) {
